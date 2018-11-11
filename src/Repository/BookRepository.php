@@ -19,6 +19,9 @@ class BookRepository extends ServiceEntityRepository
         parent::__construct($registry, Book::class);
     }
 
+    /**
+     * @param $array
+     */
     public function deleteIfNotIn($array)
     {
         try {

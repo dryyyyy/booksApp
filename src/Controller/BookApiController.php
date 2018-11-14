@@ -40,8 +40,8 @@ class BookApiController extends AbstractController
         $book = $entityManager->getRepository(Book::class)->findOneBy(array('name' => "$bookName.txt"));
         $wordCounter = new WordsCounter();
 
-        $dir = getcwd() . '/../books/';
-        $filename = $dir . $bookName . '.txt';
+
+        $filename = $bookName . '.txt';
         $entries = $wordCounter->wordEntries($filename, $word);
 
         return $this->json([

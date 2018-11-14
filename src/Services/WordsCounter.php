@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Services;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 /**
  * Class WordsCounter
@@ -9,6 +10,12 @@ namespace App\Services;
 class WordsCounter
 {
     private $delimiters = [' ', ',', '.', ';', ':'];
+    private $params;
+
+    public function __construct(ParameterBagInterface $params)
+    {
+        $this->params = $params;
+    }
 
     /**
      * @param string $filename
@@ -49,7 +56,8 @@ class WordsCounter
      */
     public function wordEntries(string $filename, string $word) : ?int
     {
-        $haystack = file_get_contents($filename);
+        $dir = $this->params->get('bookApp.watch_folder');
+        $haystack = file_get_contents($dir . $filename);
         $entriesNumber = substr_count($haystack, $word);
         return $entriesNumber;
     }

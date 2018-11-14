@@ -21,21 +21,26 @@ class DirectoryImage
      */
     private $files = [];
 
-    public function setId($id)
-    {
-        $this->id = $id;
-    }
-
+    /**
+     * @return int|null
+     */
     public function getId(): ?int
     {
         return $this->id;
     }
 
+    /**
+     * @return array|null
+     */
     public function getFiles(): ?array
     {
         return $this->files;
     }
 
+    /**
+     * @param array|null $files
+     * @return DirectoryImage
+     */
     public function setFiles(?array $files): self
     {
         $this->files = $files;

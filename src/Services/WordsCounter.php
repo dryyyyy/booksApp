@@ -22,18 +22,20 @@ class WordsCounter implements ContainerAwareInterface
     public function countIn(string $filename) : int
     {
         $word = '';
-        $rawWords = [];
+        $uniqueWords = [];
         $file = fopen($filename, 'r');
         while (false !== ($c = fgetc($file))) {
             if (!in_array($c, $this->delimiters)) {
                 $word .= $c;
             } else {
-                $rawWords[] = $word;
+                if (!in_array($word, $uniqueWords)) {
+                    $uniqueWords[] = $word;
+                }
                 $word = '';
             }
         }
         fclose($file);
-        $words = count(array_unique($rawWords));
+        $words = count($uniqueWords);
         return $words;
     }
 

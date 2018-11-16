@@ -1,21 +1,19 @@
 <?php
 
 namespace App\Services;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+
+use Symfony\Component\DependencyInjection\ContainerAwareInterface;
+use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
 /**
  * Class WordsCounter
  * @package App\Services
  */
-class WordsCounter
+class WordsCounter implements ContainerAwareInterface
 {
-    private $delimiters = [' ', ',', '.', ';', ':'];
-    private $params;
+    use ContainerAwareTrait;
 
-    public function __construct(ParameterBagInterface $params)
-    {
-        $this->params = $params;
-    }
+    private $delimiters = [' ', ',', '.', ';', ':'];
 
     /**
      * @param string $filename
@@ -56,7 +54,7 @@ class WordsCounter
      */
     public function wordEntries(string $filename, string $word) : ?int
     {
-        $dir = $this->params->get('bookApp.watch_folder');
+        $dir = $this->container->getParameter('bookApp.watch_folder');
         $haystack = file_get_contents($dir . $filename);
         $entriesNumber = substr_count($haystack, $word);
         return $entriesNumber;

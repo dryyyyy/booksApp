@@ -5,6 +5,7 @@ namespace App\Command;
 use App\Entity\Book;
 use App\Entity\DirectoryImage;
 use App\Services\WordsCounter;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -17,13 +18,30 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  */
 class BooksWatcherCommand extends ContainerAwareCommand
 {
-    private $io;
     private $dir = '';
+    /**
+     * @var EntityManagerInterface
+     */
     private $entityManager;
     private $files = [];
     private $wordsCounter;
+    /**
+     * @var DirectoryImage
+     */
     private $dirImage;
     protected static $defaultName = 'app:books-watcher';
+
+    /**
+     * BooksWatcherCommand constructor.
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     * @param WordsCounter $wordsCounter
+     */
+    public function __construct(WordsCounter $wordsCounter)
+    {
+        parent::__construct();
+        $this->wordsCounter = $wordsCounter;
+    }
 
     protected function configure()
     {
@@ -35,12 +53,9 @@ class BooksWatcherCommand extends ContainerAwareCommand
 
     /**
      * @param InputInterface $input
-     * @param OutputInterface $output
      */
-    private function init(InputInterface $input, OutputInterface $output)
+    private function init(InputInterface $input)
     {
-        $this->io = new SymfonyStyle($input, $output);
-        $this->wordsCounter = new WordsCounter();
         $this->dir = getcwd() . '/' .$input->getArgument('folderName') . '/';
         $this->files =  array_diff(scandir($this->dir), ['.', '..']);
         $this->entityManager = $this->getContainer()->get('doctrine')->getManager();
@@ -84,11 +99,11 @@ class BooksWatcherCommand extends ContainerAwareCommand
         return false;
     }
 
-    private function mainLogic()
+    private function mainLogic(SymfonyStyle $io)
     {
         if (null !== $this->dirImage) {
             if ($this->isSynced($this->files)) {
-                $this->io->success('Nothing to update');
+                $io->success('Nothing to update');
                 return;
             }
 
@@ -100,6 +115,7 @@ class BooksWatcherCommand extends ContainerAwareCommand
             $this->dirImage->setFiles($this->files);
             $this->entityManager->persist($this->dirImage);
         }
+        $this->entityManager->flush();
     }
 
     /**
@@ -109,11 +125,12 @@ class BooksWatcherCommand extends ContainerAwareCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->init($input, $output);
-        $this->syncFilesWithDb();
-        $this->mainLogic();
+        $io = new SymfonyStyle($input, $output);
 
-        $this->entityManager->flush();
-        $this->io->success('Success');
+        $this->init($input);
+        $this->syncFilesWithDb();
+        $this->mainLogic($io);
+
+        $io->success('Success');
     }
 }

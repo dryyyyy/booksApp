@@ -16,6 +16,7 @@ php bin/console app:books-watcher {$folderName}
 ### Пример API запроса.
 `http://127.0.0.1:8000/api/war_and_peace`  
 `http://127.0.0.1:8000/api/war_and_peace/pony`
+*Задать путь до watch folder для API можно параметром в /config/services.yaml*
 
 ответ:
 ```angular2html

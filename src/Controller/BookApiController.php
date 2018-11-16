@@ -9,6 +9,17 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class BookApiController extends AbstractController
 {
+    private $wordsCounter;
+
+    /**
+     * BookApiController constructor.
+     * @param WordsCounter $wordsCounter
+     */
+    public function __construct(WordsCounter $wordsCounter)
+    {
+        $this->wordsCounter = $wordsCounter;
+    }
+
     /**
      * @Route("/api/{bookName}", name="book_api")
      *
@@ -38,11 +49,9 @@ class BookApiController extends AbstractController
     {
         $entityManager = $this->getDoctrine()->getManager();
         $book = $entityManager->getRepository(Book::class)->findOneBy(array('name' => "$bookName.txt"));
-        $wordCounter = new WordsCounter();
-
 
         $filename = $bookName . '.txt';
-        $entries = $wordCounter->wordEntries($filename, $word);
+        $entries = $this->wordsCounter->wordEntries($filename, $word);
 
         return $this->json([
            'Book' =>  substr($book->getName(), 0, -4),
